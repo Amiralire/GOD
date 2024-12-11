@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Telegram ID
+creator_id="@Mebot9"
+
+# Fixed IPs
+fixed_ips=("10.202.10.10" "78.157.42.100")
+
+# Function to generate random IPs within specified ranges
+generate_ip() {
+  # Define IP ranges (South Korea)
+  ranges=(
+    "58.120.0.0/13"
+    "175.192.0.0/10"
+  )
+  
+  # Randomly select a range
+  selected_range=${ranges[$((RANDOM % ${#ranges[@]}))]}
+
+  # Parse range
+  base=$(echo $selected_range | cut -d'/' -f1)
+  cidr=$(echo $selected_range | cut -d'/' -f2)
+
+  # Calculate subnet size
+  subnet=$((32 - cidr))
+  max_hosts=$((2 ** subnet))
+
+  # Generate random offset
+  offset=$((RANDOM % max_hosts))
+  IFS='.' read -r a b c d <<< "$base"
+  third_octet=$(( (offset / 256) % 256 + c ))
+  fourth_octet=$((offset % 256 + d))
+
+  echo "$a.$b.$third_octet.$fourth_octet"
+}
+
+# Print Telegram ID
+echo "Telegram ID: $creator_id"
+echo
+
+# Generate 20 random IPs
+for i in {1..20}; do
+  random_ip=$(generate_ip)
+  fixed_ip=${fixed_ips[$((RANDOM % ${#fixed_ips[@]}))]}
+  echo "$random_ip"
+  echo "$fixed_ip"
+  echo "________________"
+done
